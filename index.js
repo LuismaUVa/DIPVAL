@@ -3,22 +3,28 @@ import mysql from "mysql2/promise";
 
 const app = express();
 
-// ⚠️ Usa variables de entorno de Railway
-const pool = mysql.createPool({
-  host: process.env.MYSQLHOST,
-  port: process.env.MYSQLPORT,
-  user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE
-});
+const pool = mysql.createPool(process.env.DATABASE_URL);
 
-app.get("/incidencias", async (req, res) => {
+// 👇 LEER POR ID
+app.get("/incidencias/:id", async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT * FROM incidencias");
-    res.json(rows);
+    const id = req.params.id;
+
+    const [rows] = await pool.query(
+      "SELECT * FROM incidencias WHERE id_caso = ?",
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "No encontrado" });
+    }
+
+    res.json(rows[0]);
+
   } catch (err) {
+    console.log(err);
     res.status(500).json({ error: err.message });
   }
 });
 
-app.listen(3000, () => console.log("API corriendo"));
+app.listen(3000);
