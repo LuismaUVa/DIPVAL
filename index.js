@@ -3,8 +3,6 @@ import mysql from "mysql2/promise";
 
 const app = express();
 
-import mysql from "mysql2/promise";
-
 const pool = mysql.createPool({
   host: process.env.MYSQLHOST,
   user: process.env.MYSQLUSER,
