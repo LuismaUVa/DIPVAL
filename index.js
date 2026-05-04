@@ -13,21 +13,21 @@ const pool = mysql.createPool({
   port: process.env.MYSQLPORT
 });
 
-// 👇 LEER POR ID
-app.get("/incidencias/:id", async (req, res) => {
+app.get("/incidencias", async (req, res) => {
   try {
-    const id = req.params.id;
+    // 👇 leer desde HEADERS
+    const id = req.headers["id"];
+
+    if (!id) {
+      return res.status(400).json({ error: "Falta header id" });
+    }
 
     const [rows] = await pool.query(
       "SELECT * FROM incidencias WHERE id_caso = ?",
       [id]
     );
 
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "No encontrado" });
-    }
-
-    res.json(rows[0]);
+    res.json(rows[0] || null);
 
   } catch (err) {
     console.log(err);
